@@ -308,6 +308,30 @@ function renderAppLayout() {
     addAppEventListeners();
 }
 
+function updateMobileHeaderTitle() {
+    const mobileHeaderTitle = document.querySelector('.main-content-header h2');
+    if (!mobileHeaderTitle) return;
+
+    let title = "Portal Estudiantil"; // Default
+    
+    if (selectedSubjectId) {
+        const subject = mockSubjects.find(s => s.id === selectedSubjectId);
+        title = subject?.name || "Detalle de Materia";
+    } else if (selectedForumThreadId) {
+        const thread = mockForumThreads.find(t => t.id === selectedForumThreadId);
+        title = thread?.title || "Detalle de Foro";
+    } else {
+        const activeLink = document.querySelector('#nav-links a.active');
+        if (activeLink?.textContent) {
+            const textContent = activeLink.textContent;
+            // Assumes emoji is first, followed by a space
+            const firstSpaceIndex = textContent.indexOf(' '); 
+            title = firstSpaceIndex > -1 ? textContent.substring(firstSpaceIndex + 1) : textContent;
+        }
+    }
+    mobileHeaderTitle.textContent = title;
+}
+
 function renderPageContent() {
     const pageContent = document.getElementById('page-content');
     if (!pageContent) return;
@@ -337,6 +361,7 @@ function renderPageContent() {
             renderSettings();
             break;
     }
+    updateMobileHeaderTitle();
 }
 
 // --- PAGE RENDERERS ---
@@ -365,28 +390,18 @@ function renderDashboard() {
     `;
 }
 
-function renderSubjectsList() {
-    return `
-        <header class="page-header">
-            <h2>Mis Materias</h2>
-            <p>Aquí encontrarás información sobre las materias que estás cursando actualmente.</p>
-        </header>
-        <div class="item-list">
-        ${mockSubjects.map(subject => `
-            <div class="list-item" onclick="window.viewSubjectDetails('${subject.id}')">
-                <h3>${subject.name}</h3>
-                <p>Docente: ${subject.teacher}</p>
-            </div>
-        `).join('')}
-        </div>
-    `;
-}
-
 function renderSubjectDetails(subjectId: string) {
     const subject = mockSubjects.find(s => s.id === subjectId);
     if (!subject) {
         return `<p>Error: No se pudo encontrar la materia.</p>`;
     }
+
+    const scheduleHtml = `
+        <div class="card">
+            <h3 class="card-header">Horario</h3>
+            <p>${subject.schedule}</p>
+        </div>
+    `;
 
     const examDatesHtml = `
         <div class="card">
@@ -407,10 +422,7 @@ function renderSubjectDetails(subjectId: string) {
             <p>Docente: ${subject.teacher}</p>
         </header>
         <div class="subject-details-grid">
-            <div class="card">
-                <h3 class="card-header">Horarios de Cursada</h3>
-                <p>${subject.schedule}</p>
-            </div>
+            ${scheduleHtml}
             ${examDatesHtml}
             <div class="card">
                 <h3 class="card-header">Temario de la Materia</h3>
@@ -440,7 +452,20 @@ function renderSubjects() {
     if (selectedSubjectId) {
         return renderSubjectDetails(selectedSubjectId);
     }
-    return renderSubjectsList();
+    return `
+        <header class="page-header">
+            <h2>Mis Materias</h2>
+            <p>Selecciona una materia para ver el temario, horario y fechas de parciales.</p>
+        </header>
+        <div class="item-list">
+        ${mockSubjects.map(subject => `
+            <div class="list-item" onclick="window.viewSubjectDetails('${subject.id}')">
+                <h3>${subject.name}</h3>
+                <p>Docente: ${subject.teacher}</p>
+            </div>
+        `).join('')}
+        </div>
+    `;
 }
 
 
@@ -526,9 +551,9 @@ function renderGradeDetails(subjectId: string) {
             <tbody>
                 ${grades.map(g => `
                     <tr>
-                        <td>${g.description}</td>
-                        <td>${g.date}</td>
-                        <td>${g.grade}</td>
+                        <td data-label="Descripción">${g.description}</td>
+                        <td data-label="Fecha">${g.date}</td>
+                        <td data-label="Nota">${g.grade}</td>
                     </tr>
                 `).join('')}
                  ${grades.length === 0 ? `<tr><td colspan="3">No hay calificaciones cargadas.</td></tr>` : ''}
@@ -537,6 +562,7 @@ function renderGradeDetails(subjectId: string) {
         <br>
         ${attendanceHtml}
     `;
+    updateMobileHeaderTitle();
 }
 (window as any).renderGradeDetails = renderGradeDetails;
 
@@ -570,9 +596,9 @@ function renderFinals() {
             <tbody>
                 ${myExams.map(e => `
                     <tr>
-                        <td>${e.subject}</td>
-                        <td>${e.date}</td>
-                        <td>${e.description}</td>
+                        <td data-label="Materia">${e.subject}</td>
+                        <td data-label="Fecha">${e.date}</td>
+                        <td data-label="Descripción">${e.description}</td>
                     </tr>
                 `).join('')}
                 ${myExams.length === 0 ? `<tr><td colspan="3">No te has inscripto a ningún examen final.</td></tr>` : ''}
@@ -593,10 +619,10 @@ function renderFinals() {
             <tbody>
                 ${mockExamTables.map(e => `
                     <tr>
-                        <td>${e.subject}</td>
-                        <td>${e.date}</td>
-                        <td>${e.teacher}</td>
-                        <td>
+                        <td data-label="Materia">${e.subject}</td>
+                        <td data-label="Fecha">${e.date}</td>
+                        <td data-label="Docente">${e.teacher}</td>
+                        <td data-label="Acción">
                             <button onclick="window.enrollInExam('${e.id}')" class="${e.enrolled ? 'btn-enrolled' : 'btn-enroll'}" ${e.enrolled ? 'disabled' : ''}>
                                 ${e.enrolled ? '✔ Inscripto' : 'Inscribirse'}
                             </button>
@@ -880,13 +906,13 @@ function handleForgotPasswordRequest(event: Event) {
 
     if (!messageElement) return;
 
-    if (dniInput.value === mockAuthenticatedUser.dni && emailInput.value === mockAuthenticatedUser.email) {
+    if (dniInput.value === mockAuthenticatedUser.dni) {
         resetAttempt.dni = dniInput.value;
         resetAttempt.email = emailInput.value;
         forgotPasswordStep = 'verify';
         render();
     } else {
-        messageElement.textContent = 'El DNI o el correo electrónico no se encuentran registrados.';
+        messageElement.textContent = 'El DNI no se encuentra registrado.';
         messageElement.className = 'form-message error';
     }
 }
@@ -1000,7 +1026,7 @@ function navigateTo(page: string) {
     if (page !== 'forums') {
         selectedForumThreadId = null;
     }
-    if (page !== 'subjects') {
+    if (page !== 'subjects' && page !== 'grades') {
         selectedSubjectId = null;
     }
     document.querySelectorAll('#nav-links a').forEach(link => {

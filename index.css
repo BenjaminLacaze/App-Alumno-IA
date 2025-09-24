@@ -168,6 +168,7 @@ body.theme-dark .login-btn {
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease-in-out, background-color 0.3s;
+    flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -602,14 +603,92 @@ body.theme-dark .btn-enrolled { color: #1E1E1E; font-weight: 700; }
         align-items: center;
         justify-content: space-between;
         background: var(--white);
-        padding: 1rem;
+        padding: 1rem 1.5rem;
         box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 99;
+    }
+    
+    .main-content-header h2 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .menu-toggle { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color); }
     
     .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); z-index: 1000; height: 100vh; }
     .sidebar.open { transform: translateX(0); }
-    .main-content { padding: 1rem; }
-    .page-header h2 { font-size: 1.5rem; }
+    .main-content { padding: 1.5rem; }
+    .page-header h2 { font-size: 1.75rem; }
+
+    /* Responsive Tables */
+    .content-table {
+        box-shadow: none;
+        background: transparent;
+        border-radius: 0;
+    }
+    .content-table thead {
+        display: none;
+    }
+
+    .content-table, .content-table tbody, .content-table tr, .content-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .content-table tr {
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        background-color: var(--white);
+        border: 1px solid var(--border-color);
+    }
+    
+    .content-table tbody tr {
+      border-bottom: none;
+    }
+    .content-table tbody tr:last-of-type {
+      border-bottom: none;
+    }
+    /* Special case for empty table message */
+    .content-table tr td[colspan="3"], .content-table tr td[colspan="4"] {
+        padding: 1.5rem;
+        text-align: center;
+        display: block;
+    }
+
+     .content-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        text-align: right;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .content-table tr td:last-child {
+      border-bottom: none;
+    }
+
+    .content-table td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        text-align: left;
+        color: var(--text-color-light);
+        padding-right: 1rem;
+    }
+    
+    .content-table td[data-label="Acción"] {
+        padding: 0.5rem;
+    }
+    
+    .content-table td .btn-enroll,
+    .content-table td .btn-enrolled {
+        width: 100%;
+        padding: 0.75rem;
+    }
 }
