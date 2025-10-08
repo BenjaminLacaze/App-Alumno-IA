@@ -229,13 +229,27 @@ const mockForumReplies: { [key: number]: { author: string, content: string, avat
 };
 
 const mockAttendanceHistory = [
-  { id: 'att-hist-1', date: '2024-05-20', careerId: 'hist', year: 1, subjectId: 'HIS01', summary: '2 Presentes, 0 Ausentes' },
-  { id: 'att-hist-2', date: '2024-05-22', careerId: 'hist', year: 1, subjectId: 'HIS01', summary: '1 Presente, 1 Ausente' },
+  { id: 'att-hist-1', date: '2024-05-20', careerId: 'hist', year: 1, subjectId: 'HIS01', summary: '2 Presentes, 0 Ausentes', teacherAbsent: false },
+  { id: 'att-hist-2', date: '2024-05-22', careerId: 'hist', year: 1, subjectId: 'HIS01', summary: '1 Presente, 1 Ausente', teacherAbsent: false },
+  { id: 'att-hist-3', date: '2024-05-24', careerId: 'hist', year: 1, subjectId: 'HIS01', summary: 'Docente Ausente', teacherAbsent: true },
 ];
 
 const mockGradesHistory = [
   { id: 'grd-hist-1', date: '2024-04-15', careerId: 'hist', year: 1, subjectId: 'HIS01', description: '1er Parcial', summary: '2 notas cargadas.' }
 ];
+
+const mockProctorGrades: {
+    [subjectId: string]: {
+        [evaluation: string]: { [studentId: string]: number | string }
+    }
+} = {
+    'HIS01': {
+        '1er Parcial': {
+            '1': '8',
+            '2': '7',
+        }
+    }
+};
 
 // --- APP STATE ---
 let isAuthenticated = false;
@@ -252,7 +266,8 @@ let selectedSubjectId: string | null = null;
 let proctorToolFilters = {
     careerId: '',
     year: '',
-    subjectId: ''
+    subjectId: '',
+    evaluation: 'new',
 };
 let attendanceToolTab: 'entry' | 'history' = 'entry';
 let gradesToolTab: 'entry' | 'history' = 'entry';
@@ -1223,10 +1238,26 @@ function setTheme(themeName: string) {
 function renderAttendanceTool() {
     const careerOptions = mockCareers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
     const filtersSelected = proctorToolFilters.careerId && proctorToolFilters.year && proctorToolFilters.subjectId;
+    const today = new Date().toISOString().split('T')[0];
 
     const entryContent = `
         <form id="attendance-form" onsubmit="event.preventDefault(); window.saveAttendance();">
-            <div id="student-list-container">${renderStudentList('attendance')}</div>
+            <div class="attendance-controls">
+                <div class="form-group">
+                    <label for="attendance-date">Fecha de la clase</label>
+                    <input type="date" id="attendance-date" value="${today}">
+                </div>
+                <div class="notification-toggle">
+                    <label for="teacher-absent">¿El docente estuvo ausente?</label>
+                    <label class="switch">
+                        <input type="checkbox" id="teacher-absent" onchange="window.toggleTeacherAbsence(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            <fieldset id="student-list-fieldset">
+                <div id="student-list-container">${renderStudentList('attendance')}</div>
+            </fieldset>
             <div id="tool-actions" style="display: ${filtersSelected ? 'block' : 'none'};">
                 <p id="tool-message" class="form-message"></p>
                 <button type="submit" class="login-btn">Guardar Asistencia</button>
@@ -1280,11 +1311,28 @@ function renderGradesTool() {
     const careerOptions = mockCareers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
     const filtersSelected = proctorToolFilters.careerId && proctorToolFilters.year && proctorToolFilters.subjectId;
 
+    const existingEvaluations = mockProctorGrades[proctorToolFilters.subjectId]
+        ? Object.keys(mockProctorGrades[proctorToolFilters.subjectId])
+        : [];
+
+    const evaluationOptions = existingEvaluations.map(e => 
+        `<option value="${e}" ${proctorToolFilters.evaluation === e ? 'selected' : ''}>${e}</option>`
+    ).join('');
+
      const entryContent = `
         <form id="grades-form" onsubmit="event.preventDefault(); window.saveGrades();">
-             <div class="form-group" id="evaluation-desc-group">
-                <label for="evaluation-description">Descripción de la Evaluación</label>
-                <input type="text" id="evaluation-description" placeholder="Ej: 1er Parcial, Trabajo Práctico N°1" required>
+             <div class="evaluation-controls">
+                <div class="form-group">
+                    <label for="evaluation-select">Evaluación</label>
+                    <select id="evaluation-select" onchange="window.handleEvaluationChange(this.value)">
+                        <option value="new" ${proctorToolFilters.evaluation === 'new' ? 'selected' : ''}>-- Nueva Evaluación --</option>
+                        ${evaluationOptions}
+                    </select>
+                </div>
+                <div class="form-group" id="evaluation-desc-group" style="display: ${proctorToolFilters.evaluation === 'new' ? 'block' : 'none'};">
+                    <label for="evaluation-description">Descripción de la Nueva Evaluación</label>
+                    <input type="text" id="evaluation-description" placeholder="Ej: 1er Parcial, Trabajo Práctico N°1" ${proctorToolFilters.evaluation === 'new' ? 'required' : ''}>
+                </div>
             </div>
             <div id="student-list-container">${renderStudentList('grades')}</div>
             <div id="tool-actions" style="display: ${filtersSelected ? 'block' : 'none'};">
@@ -1363,7 +1411,7 @@ function renderAttendanceHistory() {
         h.careerId === proctorToolFilters.careerId &&
         h.year === parseInt(proctorToolFilters.year) &&
         h.subjectId === proctorToolFilters.subjectId
-    );
+    ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     if (history.length === 0) {
         return '<p>No hay historial de asistencia para esta materia.</p>';
@@ -1374,9 +1422,13 @@ function renderAttendanceHistory() {
             ${history.map(item => `
                 <div class="history-item">
                     <div class="history-item-header">
-                        <span>${new Date(item.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <strong>${new Date(item.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
                     </div>
-                    <div class="history-item-details">${item.summary}</div>
+                    <div class="history-item-details">
+                        ${item.teacherAbsent 
+                            ? `<span class="status-badge status-final">Docente Ausente</span>` 
+                            : item.summary}
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -1613,7 +1665,7 @@ function addAppEventListeners() {
                 // Preceptor navigation
                 currentPage = page;
                 // Reset filters and tabs when changing pages
-                proctorToolFilters = { careerId: '', year: '', subjectId: '' };
+                proctorToolFilters = { careerId: '', year: '', subjectId: '', evaluation: 'new' };
                 attendanceToolTab = 'entry';
                 gradesToolTab = 'entry';
                  document.querySelectorAll('#nav-links a').forEach(link => {
@@ -1646,6 +1698,7 @@ function handleCareerChange(careerId: string, tool: 'attendance' | 'grades') {
     proctorToolFilters.careerId = careerId;
     proctorToolFilters.year = '';
     proctorToolFilters.subjectId = '';
+    proctorToolFilters.evaluation = 'new';
     
     if (tool === 'attendance') {
         attendanceToolTab = 'entry';
@@ -1679,6 +1732,7 @@ function handleCareerChange(careerId: string, tool: 'attendance' | 'grades') {
 function handleYearChange(year: string, tool: 'attendance' | 'grades') {
     proctorToolFilters.year = year;
     proctorToolFilters.subjectId = '';
+    proctorToolFilters.evaluation = 'new';
     
     if (tool === 'attendance') {
         attendanceToolTab = 'entry';
@@ -1707,6 +1761,7 @@ function handleYearChange(year: string, tool: 'attendance' | 'grades') {
 
 function handleSubjectChange(subjectId: string, toolType: 'attendance' | 'grades') {
     proctorToolFilters.subjectId = subjectId;
+    proctorToolFilters.evaluation = 'new';
     
     if (toolType === 'attendance') {
         attendanceToolTab = 'entry';
@@ -1746,6 +1801,7 @@ function renderStudentList(toolType: 'attendance' | 'grades') {
             </table>
         `;
     } else { // grades
+        const gradesForEvaluation = mockProctorGrades[proctorToolFilters.subjectId]?.[proctorToolFilters.evaluation] || {};
          return `
             <table class="content-table">
                 <thead><tr><th>Nombre del Alumno</th><th>Nota</th></tr></thead>
@@ -1753,7 +1809,7 @@ function renderStudentList(toolType: 'attendance' | 'grades') {
                     ${students.map(student => `
                         <tr>
                             <td data-label="Nombre">${student.name}</td>
-                            <td data-label="Nota"><input type="number" min="1" max="10" class="grade-input" placeholder="1-10" id="grade-${student.id}"></td>
+                            <td data-label="Nota"><input type="number" min="1" max="10" class="grade-input" placeholder="1-10" id="grade-${student.id}" value="${gradesForEvaluation[student.id] || ''}"></td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -1762,23 +1818,45 @@ function renderStudentList(toolType: 'attendance' | 'grades') {
     }
 }
 
+function handleEvaluationChange(evaluation: string) {
+    proctorToolFilters.evaluation = evaluation;
+    renderPreceptorPageContent();
+}
+(window as any).handleEvaluationChange = handleEvaluationChange;
+
+function toggleTeacherAbsence(isAbsent: boolean) {
+    const fieldset = document.getElementById('student-list-fieldset') as HTMLFieldSetElement;
+    if (fieldset) {
+        fieldset.disabled = isAbsent;
+    }
+}
+(window as any).toggleTeacherAbsence = toggleTeacherAbsence;
+
 function saveAttendance() {
-    const students = mockStudents.filter(s => s.careerId === proctorToolFilters.careerId && s.year === parseInt(proctorToolFilters.year));
-    let presentCount = 0;
-    let absentCount = 0;
-    students.forEach(student => {
-        const status = (document.querySelector(`input[name="attendance-${student.id}"]:checked`) as HTMLInputElement)?.value;
-        if (status === 'present') presentCount++;
-        else absentCount++;
-    });
+    const date = (document.getElementById('attendance-date') as HTMLInputElement).value;
+    const teacherIsAbsent = (document.getElementById('teacher-absent') as HTMLInputElement).checked;
+
+    let summary = 'Docente Ausente';
+    if (!teacherIsAbsent) {
+        const students = mockStudents.filter(s => s.careerId === proctorToolFilters.careerId && s.year === parseInt(proctorToolFilters.year));
+        let presentCount = 0;
+        let absentCount = 0;
+        students.forEach(student => {
+            const status = (document.querySelector(`input[name="attendance-${student.id}"]:checked`) as HTMLInputElement)?.value;
+            if (status === 'present') presentCount++;
+            else absentCount++;
+        });
+        summary = `${presentCount} Presentes, ${absentCount} Ausentes`;
+    }
 
     mockAttendanceHistory.unshift({
         id: `att-hist-${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
+        date: date,
         careerId: proctorToolFilters.careerId,
         year: parseInt(proctorToolFilters.year),
         subjectId: proctorToolFilters.subjectId,
-        summary: `${presentCount} Presentes, ${absentCount} Ausentes`
+        summary: summary,
+        teacherAbsent: teacherIsAbsent
     });
     
     const message = document.getElementById('tool-message') as HTMLParagraphElement;
@@ -1786,37 +1864,80 @@ function saveAttendance() {
     message.className = 'form-message success';
     message.style.display = 'block';
 
-    setTimeout(() => { message.style.display = 'none'; }, 3000);
+    setTimeout(() => { 
+        message.style.display = 'none';
+        switchAttendanceTab('history');
+    }, 1500);
 }
 (window as any).saveAttendance = saveAttendance;
 
 function saveGrades() {
+    const { subjectId, year, careerId, evaluation } = proctorToolFilters;
+    const isNewEvaluation = evaluation === 'new';
+    
     const descriptionInput = document.getElementById('evaluation-description') as HTMLInputElement;
-    const students = mockStudents.filter(s => s.careerId === proctorToolFilters.careerId && s.year === parseInt(proctorToolFilters.year));
+    const evaluationDescription = isNewEvaluation ? descriptionInput.value.trim() : evaluation;
+
+    if (isNewEvaluation && !evaluationDescription) {
+        alert('Por favor, ingresa una descripción para la nueva evaluación.');
+        return;
+    }
+
+    const students = mockStudents.filter(s => s.careerId === careerId && s.year === parseInt(year));
     let gradesCount = 0;
+    
+    // Ensure subject entry exists
+    if (!mockProctorGrades[subjectId]) {
+        mockProctorGrades[subjectId] = {};
+    }
+    // Ensure evaluation entry exists
+    if (!mockProctorGrades[subjectId][evaluationDescription]) {
+        mockProctorGrades[subjectId][evaluationDescription] = {};
+    }
+
     students.forEach(student => {
         const gradeInput = document.getElementById(`grade-${student.id}`) as HTMLInputElement;
         if (gradeInput && gradeInput.value) {
+            const gradeValue = gradeInput.value;
+            mockProctorGrades[subjectId][evaluationDescription][student.id] = gradeValue;
             gradesCount++;
+        } else {
+            // If a grade is removed, delete it from the record
+            delete mockProctorGrades[subjectId][evaluationDescription][student.id];
         }
     });
 
-    mockGradesHistory.unshift({
-        id: `grd-hist-${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
-        careerId: proctorToolFilters.careerId,
-        year: parseInt(proctorToolFilters.year),
-        subjectId: proctorToolFilters.subjectId,
-        description: descriptionInput.value,
-        summary: `${gradesCount} notas cargadas.`
-    });
+    const existingHistoryIndex = mockGradesHistory.findIndex(h => 
+        h.subjectId === subjectId && h.description === evaluationDescription
+    );
 
+    if (existingHistoryIndex > -1) {
+        mockGradesHistory[existingHistoryIndex].summary = `${gradesCount} notas cargadas.`;
+        mockGradesHistory[existingHistoryIndex].date = new Date().toISOString().split('T')[0];
+    } else {
+        mockGradesHistory.unshift({
+            id: `grd-hist-${Date.now()}`,
+            date: new Date().toISOString().split('T')[0],
+            careerId: careerId,
+            year: parseInt(year),
+            subjectId: subjectId,
+            description: evaluationDescription,
+            summary: `${gradesCount} notas cargadas.`
+        });
+    }
+    
     const message = document.getElementById('tool-message') as HTMLParagraphElement;
     message.textContent = 'Notas guardadas con éxito.';
     message.className = 'form-message success';
     message.style.display = 'block';
 
-    setTimeout(() => { message.style.display = 'none'; }, 3000);
+    setTimeout(() => { 
+        message.style.display = 'none'; 
+        if (isNewEvaluation) {
+            proctorToolFilters.evaluation = evaluationDescription;
+            renderPreceptorPageContent();
+        }
+    }, 1500);
 }
 (window as any).saveGrades = saveGrades;
 
