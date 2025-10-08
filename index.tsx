@@ -3,6 +3,76 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
+// --- SVG ASSETS ---
+const logoSVG = `
+<svg class="logo-svg" viewBox="0 0 165 60" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <text x="0" y="50" font-family="Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="56" font-weight="700">
+        IS26
+    </text>
+</svg>`;
+
+const loginIllustrationSVG = `<svg class="illustration-svg" viewBox="0 0 264 201" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="23" y="15" width="225" height="151" rx="12" fill="#E0E7FF"/>
+<rect x="13" y="156" width="245" height="30" rx="8" fill="#F3F4F6"/>
+<rect x="23" y="15" width="225" height="28" rx="8" fill="#C7D2FE"/>
+<g filter="url(#filter0_d_101_2)">
+<rect x="52" y="49" width="168" height="137" rx="12" fill="white"/>
+<path d="M68 76C68 73.7909 69.7909 72 72 72H121C123.209 72 125 73.7909 125 76V76C125 78.2091 123.209 80 121 80H72C69.7909 80 68 78.2091 68 76V76Z" fill="#E0E7FF"/>
+<rect x="68" y="93" width="128" height="10" rx="5" fill="#F3F4F6"/>
+<rect x="68" y="111" width="99" height="10" rx="5" fill="#F3F4F6"/>
+<rect x="68" y="132" width="128" height="22" rx="11" fill="#4F46E5"/>
+</g>
+<defs>
+<filter id="filter0_d_101_2" x="42" y="43" width="188" height="157" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.309804 0 0 0 0 0.27451 0 0 0 0 0.898039 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_101_2"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_101_2" result="shape"/>
+</filter>
+</defs>
+</svg>
+`;
+
+const icons: { [key: string]: string } = {
+    'arrow-left': `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`,
+    dashboard: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+    subjects: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+    grades: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+    finals: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
+    forums: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+    notifications: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`,
+    settings: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
+    attendance: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path><path d="m15 5 4 4"></path></svg>`,
+    'grades-tool': `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`,
+    'send-notification': `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`,
+    students: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+    statistics: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20V16"></path></svg>`,
+    pending: `<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M8 12h.01"></path><path d="M12 12h.01"></path><path d="M16 12h.01"></path></svg>`,
+};
+
+const studentNavItems = [
+    { page: 'dashboard', label: 'Dashboard', icon: icons.dashboard },
+    { page: 'subjects', label: 'Mis Materias', icon: icons.subjects },
+    { page: 'finals', label: 'Finales', icon: icons.finals },
+    { page: 'forums', label: 'Foros', icon: icons.forums },
+    { page: 'notifications', label: 'Notificaciones', icon: icons.notifications },
+    { page: 'settings', label: 'Configuraciones', icon: icons.settings },
+];
+
+const proctorNavItems = [
+    { page: 'dashboard', label: 'Dashboard', icon: icons.dashboard },
+    { page: 'attendance', label: 'Asistencia', icon: icons.attendance },
+    { page: 'grades-tool', label: 'Cargar Notas', icon: icons['grades-tool'] },
+    { page: 'send-notification', label: 'Enviar Notificación', icon: icons['send-notification'] },
+    { page: 'students', label: 'Alumnos', icon: icons.students },
+    { page: 'settings', label: 'Configuraciones', icon: icons.settings },
+];
+
+
 // --- MOCK DATA ---
 const mockAuthenticatedUser = {
     dni: "12345678",
@@ -208,8 +278,12 @@ function render() {
 function renderRoleSelectionScreen() {
     rootContainer.innerHTML = `
         <div class="login-container">
-            <div class="login-card" style="text-align: center;">
-                <h1 class="login-title">Bienvenido al Portal ISFDyT 26</h1>
+            <div class="login-card">
+                 <div class="login-header">
+                    ${logoSVG}
+                </div>
+                ${loginIllustrationSVG}
+                <h1 class="login-title">Portal Educativo IS26</h1>
                 <p class="form-description" style="text-align: center;">Por favor, selecciona tu rol para continuar.</p>
                 <div class="role-buttons">
                     <button id="role-student-btn" class="login-btn">Soy Alumno</button>
@@ -229,7 +303,7 @@ function renderRoleSelectionScreen() {
 }
 
 function renderAuthScreen() {
-    let title = userRole === 'student' ? 'Portal Estudiantil' : 'Portal Preceptor';
+    let title = userRole === 'student' ? 'Acceso Estudiantil' : 'Acceso Preceptor';
     let content = '';
     let credentialsGuide = '';
 
@@ -252,6 +326,9 @@ function renderAuthScreen() {
             `;
         }
         content = `
+            <div class="login-header">
+                ${logoSVG}
+            </div>
             <h1 class="login-title">${title}</h1>
             <form id="login-form">
                 <div class="form-group">
@@ -272,6 +349,7 @@ function renderAuthScreen() {
         switch (forgotPasswordStep) {
             case 'request':
                 content = `
+                    <div class="login-header">${logoSVG}</div>
                     <h1 class="login-title">Recuperar Contraseña</h1>
                     <form id="forgot-password-form">
                         <p class="form-description">Ingresa tu DNI y tu correo electrónico para recibir un código de verificación.</p>
@@ -291,6 +369,7 @@ function renderAuthScreen() {
                 break;
             case 'verify':
                 content = `
+                    <div class="login-header">${logoSVG}</div>
                     <h1 class="login-title">Verificar Código</h1>
                     <form id="verify-code-form">
                         <p class="form-description">Hemos enviado un código a tu correo. Ingrésalo a continuación (pista: es 1234).</p>
@@ -306,6 +385,7 @@ function renderAuthScreen() {
                 break;
             case 'reset':
                 content = `
+                    <div class="login-header">${logoSVG}</div>
                     <h1 class="login-title">Restablecer Contraseña</h1>
                     <form id="reset-password-form">
                         <p class="form-description">Establece una nueva contraseña.</p>
@@ -325,6 +405,7 @@ function renderAuthScreen() {
                 break;
             case 'success':
                  content = `
+                    <div class="login-header">${logoSVG}</div>
                     <h1 class="login-title">¡Éxito!</h1>
                     <p class="form-description">Tu contraseña ha sido actualizada correctamente. Ya puedes iniciar sesión con tu nueva contraseña.</p>
                     <a href="#" id="back-to-login-link" class="login-btn" style="text-decoration: none; display: block; text-align: center;">Volver al inicio de sesión</a>
@@ -390,17 +471,16 @@ function renderAppLayout() {
       <div id="app-container">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1>ISFDyT 26</h1>
+                ${logoSVG}
             </div>
             <nav>
                 <ul id="nav-links">
-                    <li><a href="#" data-page="dashboard" class="active">📊 Dashboard</a></li>
-                    <li><a href="#" data-page="subjects">🏫 Mis Materias</a></li>
-                    <li><a href="#" data-page="grades">📚 Mis Notas</a></li>
-                    <li><a href="#" data-page="finals">🗓️ Finales</a></li>
-                    <li><a href="#" data-page="forums">💬 Foros</a></li>
-                    <li><a href="#" data-page="notifications">🔔 Notificaciones</a></li>
-                    <li><a href="#" data-page="settings">⚙️ Configuraciones</a></li>
+                    ${studentNavItems.map(item => `
+                        <li><a href="#" data-page="${item.page}">
+                            ${item.icon}
+                            ${item.label}
+                        </a></li>
+                    `).join('')}
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -432,16 +512,16 @@ function renderPreceptorLayout() {
       <div id="app-container">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1>ISFDyT 26 - Preceptor</h1>
+                ${logoSVG}
             </div>
             <nav>
                 <ul id="nav-links">
-                    <li><a href="#" data-page="dashboard" class="active">📊 Dashboard</a></li>
-                    <li><a href="#" data-page="attendance">✅ Asistencia</a></li>
-                    <li><a href="#" data-page="grades-tool">📝 Cargar Notas</a></li>
-                    <li><a href="#" data-page="send-notification">📣 Enviar Notificación</a></li>
-                    <li><a href="#" data-page="settings">⚙️ Configuraciones</a></li>
-                    <li><a href="#" data-page="students">🧑‍🎓 Alumnos</a></li>
+                     ${proctorNavItems.map(item => `
+                        <li><a href="#" data-page="${item.page}">
+                            ${item.icon}
+                            ${item.label}
+                        </a></li>
+                    `).join('')}
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -491,7 +571,7 @@ function renderPreceptorPageContent() {
             updateMobileHeaderTitle();
             return; // renderSettingsPage renders directly
         case 'students':
-            content = `<header class="page-header"><h2>Alumnos</h2><p>Funcionalidad en desarrollo.</p></header>`;
+            content = `<header class="page-header"><h2>${icons.students} Alumnos</h2><p>Funcionalidad en desarrollo.</p></header>`;
             break;
     }
     pageContent.innerHTML = content;
@@ -503,12 +583,12 @@ function renderPreceptorDashboard() {
     if (!currentUser) return '';
     return `
         <header class="page-header">
-            <h2>Dashboard Preceptor</h2>
+            <h2>${icons.dashboard} Dashboard Preceptor</h2>
             <p>Bienvenido, ${currentUser.name}.</p>
         </header>
         <div class="dashboard-grid">
             <div class="card">
-                <h3 class="card-header">Estadísticas Rápidas</h3>
+                <h3 class="card-header">${icons.statistics} Estadísticas Rápidas</h3>
                 <ul>
                     <li><strong>Total Alumnos:</strong> ${mockStudents.length}</li>
                     <li><strong>Carreras Activas:</strong> ${mockCareers.length}</li>
@@ -516,7 +596,7 @@ function renderPreceptorDashboard() {
                 </ul>
             </div>
             <div class="card">
-                <h3 class="card-header">Gestiones Pendientes</h3>
+                <h3 class="card-header">${icons.pending} Gestiones Pendientes</h3>
                 <ul>
                     <li>Revisar inscripciones a finales</li>
                     <li>Cargar fechas de recuperatorios</li>
@@ -524,7 +604,7 @@ function renderPreceptorDashboard() {
                 </ul>
             </div>
             <div class="card">
-                <h3 class="card-header">Últimos Comunicados</h3>
+                <h3 class="card-header">${icons.notifications} Últimos Comunicados</h3>
                  <ul>${mockNotifications.map(n => `<li><strong>${n.title}</strong>: ${n.content}</li>`).join('')}</ul>
             </div>
         </div>
@@ -551,10 +631,8 @@ function updateMobileHeaderTitle() {
     } else {
         const activeLink = document.querySelector('#nav-links a.active');
         if (activeLink?.textContent) {
-            const textContent = activeLink.textContent;
-            // Assumes emoji is first, followed by a space
-            const firstSpaceIndex = textContent.indexOf(' '); 
-            title = firstSpaceIndex > -1 ? textContent.substring(firstSpaceIndex + 1) : textContent;
+            const textContent = activeLink.textContent.trim();
+            title = textContent;
         }
     }
     mobileHeaderTitle.textContent = title;
@@ -572,9 +650,6 @@ function renderPageContent() {
             break;
         case 'subjects':
             pageContent.innerHTML = renderSubjects();
-            break;
-        case 'grades':
-            pageContent.innerHTML = renderGradesList();
             break;
         case 'finals':
             pageContent.innerHTML = renderFinals();
@@ -598,20 +673,20 @@ function renderDashboard() {
     if (!currentUser || currentUser.role !== 'student') return '';
     return `
         <header class="page-header">
-            <h2>Dashboard</h2>
+            <h2>${icons.dashboard} Dashboard</h2>
             <p>Bienvenida, ${currentUser.name}. Aquí tienes un resumen de tu actividad.</p>
         </header>
         <div class="dashboard-grid">
             <div class="card">
-                <h3 class="card-header">Próximos Finales</h3>
+                <h3 class="card-header">${icons.finals} Próximos Finales</h3>
                 <ul>${mockExamTables.filter(e => e.enrolled).map(e => `<li><strong>${e.subject}</strong> - ${e.date}</li>`).join('')}</ul>
             </div>
             <div class="card">
-                <h3 class="card-header">Últimas Notificaciones</h3>
+                <h3 class="card-header">${icons.notifications} Últimas Notificaciones</h3>
                 <ul>${mockNotifications.map(n => `<li><strong>${n.title}</strong>: ${n.content}</li>`).join('')}</ul>
             </div>
             <div class="card">
-                <h3 class="card-header">Actividad Reciente en Foros</h3>
+                <h3 class="card-header">${icons.forums} Actividad Reciente en Foros</h3>
                  <ul>${mockForumThreads.map(t => `<li>${t.title} (${t.replies} respuestas)</li>`).join('')}</ul>
             </div>
         </div>
@@ -624,109 +699,107 @@ function renderSubjectDetails(subjectId: string) {
         return `<p>Error: No se pudo encontrar la materia.</p>`;
     }
 
+    const scheduleParts = (subject.schedule || ' , ').split(',');
+    const days = scheduleParts[0]?.trim();
+    const time = scheduleParts[1]?.trim();
+
     const scheduleHtml = `
-        <div class="card">
-            <h3 class="card-header">Horario</h3>
-            <p>${subject.schedule || 'No disponible'}</p>
+        <div class="card schedule-card">
+            <h3 class="card-header">Horario de Cursada</h3>
+            <div class="schedule-details">
+                <div class="schedule-item">
+                    <span>Días</span>
+                    <strong>${days || 'No definido'}</strong>
+                </div>
+                <div class="schedule-item">
+                    <span>Horario</span>
+                    <strong>${time || 'No definido'}</strong>
+                </div>
+            </div>
         </div>
     `;
 
     const examDatesHtml = `
         <div class="card">
             <h3 class="card-header">Fechas de Parciales</h3>
-            <ul class="syllabus-list">
-                ${subject.examDates && subject.examDates.length > 0
-                    ? subject.examDates.map(exam => `<li><strong>${exam.description}:</strong> ${exam.date}</li>`).join('')
-                    : '<li>No hay fechas de parciales cargadas.</li>'
-                }
-            </ul>
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${(subject.examDates && subject.examDates.length > 0)
+                        ? subject.examDates.map(exam => `
+                            <tr>
+                                <td data-label="Descripción">${exam.description}</td>
+                                <td data-label="Fecha">${exam.date}</td>
+                            </tr>`).join('')
+                        : '<tr><td colspan="2">No hay fechas de parciales cargadas.</td></tr>'
+                    }
+                </tbody>
+            </table>
         </div>
     `;
-
-    return `
-        <header class="page-header">
-            <a href="#" onclick="window.backToSubjects()">&larr; Volver a Mis Materias</a>
-            <h2>${subject.name}</h2>
-            <p>Docente: ${subject.teacher}</p>
-        </header>
-        <div class="subject-details-grid">
-            ${scheduleHtml}
-            ${examDatesHtml}
-            <div class="card">
-                <h3 class="card-header">Temario de la Materia</h3>
-                <ul class="syllabus-list">
-                    ${subject.syllabus.map(topic => `<li>${topic}</li>`).join('')}
-                </ul>
-            </div>
-        </div>
-    `;
-}
-
-
-function viewSubjectDetails(subjectId: string) {
-    selectedSubjectId = subjectId;
-    renderPageContent();
-}
-(window as any).viewSubjectDetails = viewSubjectDetails;
-
-function backToSubjects() {
-    selectedSubjectId = null;
-    renderPageContent();
-}
-(window as any).backToSubjects = backToSubjects;
-
-
-function renderSubjects() {
-    if (selectedSubjectId) {
-        return renderSubjectDetails(selectedSubjectId);
-    }
-    return `
-        <header class="page-header">
-            <h2>Mis Materias</h2>
-            <p>Selecciona una materia para ver el temario, horario y fechas de parciales.</p>
-        </header>
-        <div class="item-list">
-        ${mockSubjects.filter(s => s.careerId === 'hist').map(subject => `
-            <div class="list-item" onclick="window.viewSubjectDetails('${subject.id}')">
-                <h3>${subject.name}</h3>
-                <p>Docente: ${subject.teacher}</p>
-            </div>
-        `).join('')}
-        </div>
-    `;
-}
-
-
-function renderGradesList() {
-    return `
-        <header class="page-header">
-            <h2>Mis Notas</h2>
-            <p>Selecciona una materia para ver el detalle de tus calificaciones y asistencias.</p>
-        </header>
-        <div class="item-list">
-        ${mockSubjects.filter(s => s.careerId === 'hist').map(subject => `
-            <div class="list-item" onclick="window.renderGradeDetails('${subject.id}')">
-                <h3>${subject.name}</h3>
-                <p>Docente: ${subject.teacher}</p>
-            </div>
-        `).join('')}
-        </div>
-    `;
-}
-
-function renderGradeDetails(subjectId: string) {
-    const subject = mockSubjects.find(s => s.id === subjectId)!;
-    const grades = mockGrades[subjectId] || [];
-    const attendance = mockAttendance[subjectId];
-    const pageContent = document.getElementById('page-content')!;
-
-    let attendanceHtml = `
-        <h3>Asistencias</h3>
+    
+    const syllabusHtml = `
         <div class="card">
-             <p>No hay datos de asistencia disponibles para esta materia.</p>
+            <h3 class="card-header">Temario de la Materia</h3>
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>Unidad</th>
+                        <th>Tema</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${subject.syllabus.map(topic => {
+                        const parts = topic.split(':');
+                        const unit = parts.length > 1 ? parts[0] : '';
+                        const theme = parts.length > 1 ? parts.slice(1).join(':').trim() : topic;
+                        return `
+                            <tr>
+                                <td data-label="Unidad">${unit}</td>
+                                <td data-label="Tema">${theme}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                    ${subject.syllabus.length === 0 ? '<tr><td colspan="2">El temario no está disponible.</td></tr>' : ''}
+                </tbody>
+            </table>
         </div>
     `;
 
+    // Grades and Attendance Info
+    const grades = mockGrades[subjectId] || [];
+    const gradesHtml = `
+        <div class="card">
+            <h3 class="card-header">Calificaciones</h3>
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Nota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${grades.map(g => `
+                        <tr>
+                            <td data-label="Descripción">${g.description}</td>
+                            <td data-label="Fecha">${g.date}</td>
+                            <td data-label="Nota">${g.grade}</td>
+                        </tr>
+                    `).join('')}
+                     ${grades.length === 0 ? `<tr><td colspan="3">No hay calificaciones cargadas.</td></tr>` : ''}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    const attendance = mockAttendance[subjectId];
+    let attendanceHtml = '';
     if (attendance) {
         const { totalClasses, absences } = attendance;
         const percentage = totalClasses > 0 ? Math.round((absences / totalClasses) * 100) : 0;
@@ -745,7 +818,6 @@ function renderGradeDetails(subjectId: string) {
         }
 
         attendanceHtml = `
-            <h3>Asistencias</h3>
             <div class="card attendance-card ${statusClass}">
                  <div class="attendance-status">
                     <h4>Estado de Asistencia: <strong>${statusText}</strong></h4>
@@ -759,40 +831,74 @@ function renderGradeDetails(subjectId: string) {
                  </div>
             </div>
         `;
+    } else {
+        attendanceHtml = `
+            <div class="card">
+                <h3 class="card-header">Asistencias</h3>
+                <p>No hay datos de asistencia disponibles para esta materia.</p>
+            </div>
+        `;
     }
 
-    pageContent.innerHTML = `
-         <header class="page-header">
-            <a href="#" onclick="window.navigateTo('grades')">&larr; Volver a Mis Notas</a>
-            <h2>${subject.name}</h2>
-            <p>Docente: ${subject.teacher}</p>
+    return `
+        <header class="page-header with-back-button">
+            <button class="back-button" onclick="window.backToSubjects()" aria-label="Volver a Mis Materias">
+                ${icons['arrow-left']}
+            </button>
+            <div class="header-content">
+                <h2>${subject.name}</h2>
+                <p>Docente: ${subject.teacher}</p>
+            </div>
         </header>
-        <h3>Calificaciones</h3>
-        <table class="content-table">
-            <thead>
-                <tr>
-                    <th>Descripción</th>
-                    <th>Fecha</th>
-                    <th>Nota</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${grades.map(g => `
-                    <tr>
-                        <td data-label="Descripción">${g.description}</td>
-                        <td data-label="Fecha">${g.date}</td>
-                        <td data-label="Nota">${g.grade}</td>
-                    </tr>
-                `).join('')}
-                 ${grades.length === 0 ? `<tr><td colspan="3">No hay calificaciones cargadas.</td></tr>` : ''}
-            </tbody>
-        </table>
-        <br>
-        ${attendanceHtml}
+        <div class="subject-details-container">
+            ${scheduleHtml}
+            <div class="subject-details-grid">
+                ${gradesHtml}
+                ${attendanceHtml}
+                ${examDatesHtml}
+                ${syllabusHtml}
+            </div>
+        </div>
     `;
-    updateMobileHeaderTitle();
 }
-(window as any).renderGradeDetails = renderGradeDetails;
+
+
+function viewSubjectDetails(subjectId: string) {
+    selectedSubjectId = subjectId;
+    const pageContent = document.getElementById('page-content');
+    if (pageContent) {
+        pageContent.innerHTML = renderSubjectDetails(subjectId);
+        updateMobileHeaderTitle();
+    }
+}
+(window as any).viewSubjectDetails = viewSubjectDetails;
+
+function backToSubjects() {
+    selectedSubjectId = null;
+    renderPageContent();
+}
+(window as any).backToSubjects = backToSubjects;
+
+
+function renderSubjects() {
+    if (selectedSubjectId) {
+        return renderSubjectDetails(selectedSubjectId);
+    }
+    return `
+        <header class="page-header">
+            <h2>${icons.subjects} Mis Materias</h2>
+            <p>Selecciona una materia para ver toda la información de la cursada.</p>
+        </header>
+        <div class="item-list">
+        ${mockSubjects.filter(s => s.careerId === 'hist').map(subject => `
+            <div class="list-item" onclick="window.viewSubjectDetails('${subject.id}')">
+                <h3>${subject.name}</h3>
+                <p>${subject.teacher}</p>
+            </div>
+        `).join('')}
+        </div>
+    `;
+}
 
 function switchFinalsTab(tab: string) {
     examPageActiveTab = tab;
@@ -863,7 +969,7 @@ function renderFinals() {
 
     return `
         <header class="page-header">
-            <h2>Finales</h2>
+            <h2>${icons.finals} Finales</h2>
             <p>Consulta tus inscripciones y las mesas de examen final disponibles.</p>
         </header>
         <div class="tabs">
@@ -920,10 +1026,14 @@ function renderForumThreadDetails(threadId: number) {
     if (!thread || !currentUser) return `<p>Error: No se pudo encontrar el hilo del foro.</p>`;
 
     return `
-        <header class="page-header">
-            <a href="#" onclick="window.backToForums()">&larr; Volver a los Foros</a>
-            <h2>${thread.title}</h2>
-            <p>Iniciado por: <strong>${thread.author}</strong></p>
+        <header class="page-header with-back-button">
+            <button class="back-button" onclick="window.backToForums()" aria-label="Volver a los Foros">
+                ${icons['arrow-left']}
+            </button>
+            <div class="header-content">
+                <h2>${thread.title}</h2>
+                <p>Iniciado por: <strong>${thread.author}</strong></p>
+            </div>
         </header>
 
         <div class="forum-thread-container">
@@ -959,7 +1069,7 @@ function renderForums() {
     }
     return `
         <header class="page-header">
-            <h2>Foros</h2>
+            <h2>${icons.forums} Foros</h2>
             <p>Espacios de debate y consulta.</p>
         </header>
         
@@ -988,7 +1098,7 @@ function renderForums() {
 function renderNotifications() {
      return `
         <header class="page-header">
-            <h2>Notificaciones</h2>
+            <h2>${icons.notifications} Notificaciones</h2>
             <p>Todos los comunicados importantes de la institución.</p>
         </header>
         <div class="item-list">
@@ -1008,7 +1118,7 @@ function renderSettingsPage() {
 
     const settingsHTML = `
         <header class="page-header">
-            <h2>Configuraciones</h2>
+            <h2>${icons.settings} Configuraciones</h2>
             <p>Gestiona tu perfil, la apariencia de la aplicación y las notificaciones.</p>
         </header>
         <div class="settings-grid">
@@ -1128,7 +1238,7 @@ function renderAttendanceTool() {
 
     return `
         <header class="page-header">
-            <h2>Tomar Asistencia</h2>
+            <h2>${icons.attendance} Tomar Asistencia</h2>
             <p>Selecciona la carrera, año y materia para ver la lista de alumnos.</p>
         </header>
         <div class="card">
@@ -1188,7 +1298,7 @@ function renderGradesTool() {
 
     return `
         <header class="page-header">
-            <h2>Cargar Notas</h2>
+            <h2>${icons['grades-tool']} Cargar Notas</h2>
             <p>Selecciona la carrera, año y materia para cargar las notas de una evaluación.</p>
         </header>
         <div class="card">
@@ -1228,7 +1338,7 @@ function renderGradesTool() {
 function renderNotificationsTool() {
     return `
         <header class="page-header">
-            <h2>Enviar Notificación</h2>
+            <h2>${icons['send-notification']} Enviar Notificación</h2>
             <p>Redacta y envía un comunicado a todos los alumnos.</p>
         </header>
         <div class="card">
@@ -1469,7 +1579,7 @@ function navigateTo(page: string) {
     if (page !== 'forums') {
         selectedForumThreadId = null;
     }
-    if (page !== 'subjects' && page !== 'grades') {
+    if (page !== 'subjects') {
         selectedSubjectId = null;
     }
     document.querySelectorAll('#nav-links a').forEach(link => {
@@ -1492,7 +1602,9 @@ function addAppEventListeners() {
     document.getElementById('nav-links')?.addEventListener('click', (e) => {
         e.preventDefault();
         if (!currentUser) return;
-        const target = e.target as HTMLAnchorElement;
+        const target = (e.target as HTMLElement).closest('a');
+        if (!target) return;
+        
         const page = target.getAttribute('data-page');
         if (page) {
             if (currentUser.role === 'student') {
